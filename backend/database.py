@@ -3,7 +3,20 @@ from typing import List, Tuple, Any
 
 
 class Database:
-    def __init__(self, db_file_path):
+    """This is a Database class that acts as an API for an SQLite3 Database.
+
+    The methods in this class can be called to interact with the SQLite3
+    Database, rather than having to interface with the SQLite3 library directly.
+
+    Attributes:
+        db_file_path: The file path to the database file.
+        conn: The connection object that is established to connect with the
+          database file.
+        cursor: This is the cursor object that can directly interact with the
+          database.
+    """
+
+    def __init__(self, db_file_path: str):
         self.db_file_path = db_file_path
         self.conn = None
         self.cursor = None
@@ -50,7 +63,7 @@ class Database:
             print(e)
     
 
-    def execute(self, sql) -> List[Tuple]:
+    def execute(self, sql: str) -> List[Tuple]:
         """
         Executes the specified SQL query or command.
 
