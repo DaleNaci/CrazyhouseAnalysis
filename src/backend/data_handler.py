@@ -39,7 +39,9 @@ class DataHandler:
     
 
     def __reset_db(self):
-        """Deletes every table"""
+        """
+        Deletes every table
+        """
         tables = self.db.execute("""
             SELECT name
               FROM sqlite_master
@@ -56,7 +58,9 @@ class DataHandler:
     
 
     def __create_game_table(self):
-        """Creates the game database file"""
+        """
+        Creates the Game table.
+        """
         self.db.execute("""
             CREATE TABLE Game (
                 GameId      VARCHAR(24) PRIMARY KEY,
@@ -72,6 +76,9 @@ class DataHandler:
 
     
     def __create_move_table(self):
+        """
+        Creates the Move table.
+        """
         self.db.execute("""
             CREATE TABLE Move (
                 MoveId    INT PRIMARY KEY,
@@ -85,7 +92,9 @@ class DataHandler:
 
     
     def __parse_pgn_files(self):
-        """Parses the PGN files and inserts data from them."""
+        """
+        Parses the PGN files and inserts data from them.
+        """
         file_names = self.__get_file_names()
 
         for fn in file_names:
@@ -93,16 +102,27 @@ class DataHandler:
 
 
     
-    def __parse_pgn(self, file_path):
-        """Parses through a PGN file and inserts data into the related
-        tables based on its results.""" #TODO: Update docstring
+    def __parse_pgn(self, file_path: str):
+        """
+        Parses through a PGN file and inserts data into the related
+        tables based on its results.
+
+        Args:
+            file_path (str): This variable is the relative file path
+              to the PGN from the CWD. 
+        """
         with open(file_path):
             pass #TODO
 
 
 
     def __get_file_names(self) -> List[str]:
-        """Grabs the data file names.""" #TODO: Update docstring
+        """
+        Grabs the data file names.
+
+        Returns:
+            List of strings with the names of the files.
+        """
         file_names = []
 
         try:
