@@ -2,6 +2,7 @@ import os
 from typing import List
 
 from src.backend.database import Database
+from src.backend.pgn_parser import PgnParser
 
 
 class DataHandler:
@@ -16,7 +17,7 @@ class DataHandler:
           .pgn files.
     """
     
-    def __init__(self, data_dir, db_dir):
+    def __init__(self, data_dir: str, db_dir: str):
         self.data_dir = data_dir
         self.db_dir = db_dir
         self.db = Database(f"{self.db_dir}/database.db")
@@ -96,24 +97,10 @@ class DataHandler:
         Parses the PGN files and inserts data from them.
         """
         file_names = self.__get_file_names()
+        pgn_parser = PgnParser(self.db_dir)
 
         for fn in file_names:
-            self.__parse_pgn(f"{self.data_dir}/{fn}")
-
-
-    
-    def __parse_pgn(self, file_path: str):
-        """
-        Parses through a PGN file and inserts data into the related
-        tables based on its results.
-
-        Args:
-            file_path (str): This variable is the relative file path
-              to the PGN from the CWD. 
-        """
-        with open(file_path):
-            pass #TODO
-
+            pgn_parser.parse(f"{self.data_dir}/{fn}")
 
 
     def __get_file_names(self) -> List[str]:
