@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from database import Database
+from src.backend.database import Database
 
 
 class DataHandler:
