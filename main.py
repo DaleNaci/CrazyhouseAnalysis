@@ -1,5 +1,8 @@
+from src.frontend.user_interface import run
+
+
 def main():
-    print("Hello, world!")
+    run()
 
 
 if __name__ == "__main__":

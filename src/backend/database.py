@@ -8,6 +8,19 @@ class Database:
     The methods in this class can be called to interact with the SQLite3
     Database, rather than having to interface with the SQLite3 library directly.
 
+    Usage:
+        # Create an instance of the Database class
+        db = Database("example.db")
+
+        # Connect to the Database file specified during initialization
+        db.connect()
+
+        # Execute an SQL query
+        db.execute("CREATE TABLE Person (name varchar(255), age int);")
+
+        # Commit changes
+        db.commit()
+
     Attributes:
         db_file_path: The file path to the database file.
         conn: The connection object that is established to connect with the
@@ -22,7 +35,7 @@ class Database:
         self.cursor = None
     
 
-    def _get_table_names(self) -> List[Tuple]:
+    def __get_table_names(self) -> List[Tuple]:
         """
         Retrieves the names of all tables in the database.
 
@@ -44,7 +57,7 @@ class Database:
         Clears all records from all tables in the database.
         """
         try:
-            for table_name in self._get_table_names():
+            for table_name in self.__get_table_names():
                 self.execute(f"DELETE FROM {table_name}")
             
             self.commit()
