@@ -42,7 +42,11 @@ class Database:
         Returns:
             list: A list containing the names of every table in the database.
         """
-        self.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        self.cursor.execute("""
+            SELECT name
+              FROM sqlite_master
+             WHERE type='table';
+        """)
         
         tables = []
         
@@ -101,5 +105,15 @@ class Database:
         """
         try:
             self.conn.commit()
+        except sqlite3.Error as e:
+            print(e)
+    
+
+    def close(self):
+        """
+        Closes the connection.
+        """
+        try:
+            self.conn.close()
         except sqlite3.Error as e:
             print(e)

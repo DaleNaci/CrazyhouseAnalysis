@@ -12,5 +12,5 @@ def run():
     action = input(starting_message)
 
     if action == "1":
-        dh = DataHandler("src/data", "src/tables")
+        dh = DataHandler("src/data", "src/db")
         dh.run()

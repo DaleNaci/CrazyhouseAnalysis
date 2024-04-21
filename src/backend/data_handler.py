@@ -34,25 +34,39 @@ class DataHandler:
         self.db.commit()
 
         self.__parse_pgn_files()
+        
+        self.db.close()
     
 
     def __reset_db(self):
-        """Resets every table"""
-        self.db.clear()
+        """Deletes every table"""
+        tables = self.db.execute("""
+            SELECT name
+              FROM sqlite_master
+             WHERE type='table';
+        """)
+
+        for t in tables:
+            self.db.execute(f"""
+                DROP TABLE
+                  IF EXISTS {t[0]}
+            """)
+        
+        self.db.commit()
     
 
     def __create_game_table(self):
         """Creates the game database file"""
         self.db.execute("""
             CREATE TABLE Game (
-                GameId VARCHAR(24) PRIMARY KEY,
+                GameId      VARCHAR(24) PRIMARY KEY,
                 WhitePlayer VARCHAR(64),
                 BlackPlayer VARCHAR(64),
-                WhiteElo INT,
-                BlackElo INT,
+                WhiteElo    INT,
+                BlackElo    INT,
                 Termination VARCHAR(32),
                 TimeControl VARCHAR(8),
-                Result VARCHAR(8)
+                Result      VARCHAR(8)
             );
         """)
 
@@ -60,11 +74,11 @@ class DataHandler:
     def __create_move_table(self):
         self.db.execute("""
             CREATE TABLE Move (
-                MoveId INT PRIMARY KEY,
-                GameId VARCHAR(24),
-                MoveNum INT,
+                MoveId    INT PRIMARY KEY,
+                GameId    VARCHAR(24),
+                MoveNum   INT,
                 TimeTaken INT,
-                Move VARCHAR(8),
+                Move      VARCHAR(8),
                 FOREIGN KEY (GameId) REFERENCES Game(GameId)
             );
         """)
@@ -75,7 +89,7 @@ class DataHandler:
         file_names = self.__get_file_names()
 
         for fn in file_names:
-            self.__parse_pgn(self, f"{self.data_dir}/{fn}")
+            self.__parse_pgn(f"{self.data_dir}/{fn}")
 
 
     
