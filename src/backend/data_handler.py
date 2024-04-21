@@ -78,16 +78,17 @@ class DataHandler:
             self.__parse_pgn(self, f"{self.data_dir}/{fn}")
 
 
+    
     def __parse_pgn(self, file_path):
         """Parses through a PGN file and inserts data into the related
-        tables based on its results."""
+        tables based on its results.""" #TODO: Update docstring
         with open(file_path):
-            pass
+            pass #TODO
 
 
 
     def __get_file_names(self) -> List[str]:
-        """Grabs the data file names."""
+        """Grabs the data file names.""" #TODO: Update docstring
         file_names = []
 
         try:
