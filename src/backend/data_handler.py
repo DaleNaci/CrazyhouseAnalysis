@@ -16,8 +16,11 @@ class DataHandler:
           .pgn files.
     """
     
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, db_dir):
         self.data_dir = data_dir
+        self.db_dir = db_dir
+        self.db = Database(f"{self.db_dir}/database.db")
+        self.db.connect()
 
 
     def run(self):
@@ -25,7 +28,61 @@ class DataHandler:
         
         Users should be calling this method.
         """
+        self.__reset_db()
+        self.__create_game_table()
+        self.__create_move_table()
+        self.db.commit()
+
+        self.__parse_pgn_files()
+    
+
+    def __reset_db(self):
+        """Resets every table"""
+        self.db.clear()
+    
+
+    def __create_game_table(self):
+        """Creates the game database file"""
+        self.db.execute("""
+            CREATE TABLE Game (
+                GameId VARCHAR(24) PRIMARY KEY,
+                WhitePlayer VARCHAR(64),
+                BlackPlayer VARCHAR(64),
+                WhiteElo INT,
+                BlackElo INT,
+                Termination VARCHAR(32),
+                TimeControl VARCHAR(8),
+                Result VARCHAR(8)
+            );
+        """)
+
+    
+    def __create_move_table(self):
+        self.db.execute("""
+            CREATE TABLE Move (
+                MoveId INT PRIMARY KEY,
+                GameId VARCHAR(24),
+                MoveNum INT,
+                TimeTaken INT,
+                Move VARCHAR(8),
+                FOREIGN KEY (GameId) REFERENCES Game(GameId)
+            );
+        """)
+
+    
+    def __parse_pgn_files(self):
+        """Parses the PGN files and inserts data from them."""
         file_names = self.__get_file_names()
+
+        for fn in file_names:
+            self.__parse_pgn(self, f"{self.data_dir}/{fn}")
+
+
+    def __parse_pgn(self, file_path):
+        """Parses through a PGN file and inserts data into the related
+        tables based on its results."""
+        with open(file_path):
+            pass
 
 
 
@@ -40,24 +97,3 @@ class DataHandler:
             print(f"Error while accessing the {self.data_dir} directory.")
         
         return file_names
-    
-
-    def __create_game_db(self, file_path: str):
-        """Creates the game database file using the local Database
-        class."""
-        db = Database("src/db/games.db")
-        db.clear()
-
-        # TODO: Finish CREATE TABLE SQL Query
-        db.exec("""
-            CREATE TABLE Game (
-                GameId varchar(24),
-            );
-        """)
-
-
-    
-
-    def __parse_pgn(self, file_path: str):
-        """Parses through a pgn file to create specific games for the
-        database."""
