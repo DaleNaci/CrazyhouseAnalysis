@@ -20,9 +20,10 @@ class Game:
 class Move:
     MoveId: int = None
     GameId: str = None
+    Move: str = None
+    Player: str = None
     MoveNum: int = None
     TimeTaken: int = None
-    Move: str = None
 
 
 class PgnParser:
@@ -36,7 +37,8 @@ class PgnParser:
         self.db_dir = db_dir
         self.db = Database(f"{self.db_dir}/database.db")
         self.db.connect()
-        self.nextMoveId = self.__set_next_move_id()
+        self.nextMoveId = -1
+        self.__set_next_move_id()
 
 
     def parse(self, file_path: str):
@@ -108,18 +110,42 @@ class PgnParser:
               associated with.
         """
         move_details = re.findall(r"\d+\.\s*[^{}]+\s*\{[^\}]*?\}", line)
-        time_control_sec = int(g.TimeControl.split("+")[0])
+        time_control_sec, time_increment = map(int, g.TimeControl.split("+"))
         white_prev_time = black_prev_time = time_control_sec
+        move_count = 1 # This counts TOTAL moves including both colors
 
         for md in move_details:
             m = Move()
 
+            # Setting MoveId
             m.MoveId = self.__get_next_move_id()
+            
+            # Setting GameId
             m.GameId = g.GameId
 
+            # Setting Move
+            m.Move = md.split()[1]
+
+            # Setting Player
+            m.Player = "black" if "..." in md else "white"
+
+            # Setting MoveNum
+            move_count += 1
+            m.MoveNum = move_count // 2
+
+            # Setting TimeTaken
             time_str = re.search(r"\[%clk (\d+:\d+:\d+)\]", md).group(1)
             time_sec = self.__parse_time(time_str)
-            # TODO - Finish populating "m" instance attributes
+            
+            if m.Player == "white":
+                m.TimeTaken = white_prev_time - time_sec
+                white_prev_time = time_sec + time_increment
+            else:
+                m.TimeTaken = black_prev_time - time_sec
+                black_prev_time = time_sec + time_increment
+            
+            self.__create_move_record(m)
+
 
 
     def __parse_time(self, time_str: str) -> int:
@@ -169,16 +195,29 @@ class PgnParser:
         Args:
             m (Move): Move instance with filled attributes.
         """
-        pass
+        self.db.execute(f"""
+            INSERT INTO Move
+                 VALUES (
+                         {m.MoveId},
+                         "{m.GameId}",
+                         "{m.Move}",
+                         "{m.Player}",
+                         {m.MoveNum},
+                         {m.TimeTaken}
+                        );
+        """)
 
 
     def __set_next_move_id(self):
         max_id = self.db.execute("""
             SELECT MAX(MoveId)
               FROM Move;
-        """)
+        """)[0][0]
 
-        self.nextMoveId += 1
+        if not max_id:
+            max_id = 0
+
+        self.nextMoveId = max_id + 1
     
 
     def __get_next_move_id(self):
