@@ -84,7 +84,7 @@ class DataHandler:
             CREATE TABLE Move (
                 MoveId    INT PRIMARY KEY,
                 GameId    VARCHAR(24),
-                Move      VARCHAR(8),
+                Action    VARCHAR(8),
                 Player    VARCHAR(5),
                 MoveNum   INT,
                 TimeTaken INT,

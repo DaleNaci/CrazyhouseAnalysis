@@ -20,7 +20,7 @@ class Game:
 class Move:
     MoveId: int = None
     GameId: str = None
-    Move: str = None
+    Action: str = None
     Player: str = None
     MoveNum: int = None
     TimeTaken: int = None
@@ -124,7 +124,7 @@ class PgnParser:
             m.GameId = g.GameId
 
             # Setting Move
-            m.Move = md.split()[1]
+            m.Action = md.split()[1].replace("!", "").replace("?", "")
 
             # Setting Player
             m.Player = "black" if "..." in md else "white"
@@ -200,7 +200,7 @@ class PgnParser:
                  VALUES (
                          {m.MoveId},
                          "{m.GameId}",
-                         "{m.Move}",
+                         "{m.Action}",
                          "{m.Player}",
                          {m.MoveNum},
                          {m.TimeTaken}
