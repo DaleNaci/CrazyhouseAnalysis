@@ -11,8 +11,14 @@ def main(db_file_path):
           SELECT Action,
                  COUNT(*) AS frequency
             FROM Move
-           WHERE Player = "white"
-             AND MoveNum = 1
+           WHERE Player = "black"
+                 AND MoveNum = 1
+                 AND GameId IN (
+                     SELECT GameId
+                       FROM Move
+                      WHERE Action = "d4"
+                        AND MoveNum = 1     
+                 )
         GROUP BY Action;
     """)
 
@@ -29,7 +35,7 @@ def main(db_file_path):
     
     plt.xlabel("Frequency")
     plt.ylabel("Moves")
-    plt.title("Frequency of Moves in Chess")
+    plt.title("Frequency of Responses to d4")
     
     plt.gca().invert_yaxis()
     plt.tight_layout()
