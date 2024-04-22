@@ -36,6 +36,7 @@ class PgnParser:
         self.db_dir = db_dir
         self.db = Database(f"{self.db_dir}/database.db")
         self.db.connect()
+        self.nextMoveId = self.__set_next_move_id()
 
 
     def parse(self, file_path: str):
@@ -71,8 +72,8 @@ class PgnParser:
                     g.Result = val
                 elif line.startswith("1. "):
                     self.__create_game_record(g)
+                    self.__parse_move_list(line, g)
                     g = Game()
-                    self.__parse_move_list(line)
             
             print(f"{file_path} has been parsed.")
         
@@ -87,20 +88,54 @@ class PgnParser:
 
         Args:
             line (str): A PGN line.
+
+        Returns:
+            String representing the PGN line value.
         """
         try:
             return re.findall(r'"(.*?)"', line)[0]
         except:
             return None
 
-    def __parse_move_list(self, line: str):
+
+    def __parse_move_list(self, line: str, g: Game):
         """
         Parses a move list line from a PGN.
 
         Args:
             line (str): The move list line beginning with "1.".
+            g (Game): The game instance that this move list is
+              associated with.
         """
-        pass
+        move_details = re.findall(r"\d+\.\s*[^{}]+\s*\{[^\}]*?\}", line)
+        time_control_sec = int(g.TimeControl.split("+")[0])
+        white_prev_time = black_prev_time = time_control_sec
+
+        for md in move_details:
+            m = Move()
+
+            m.MoveId = self.__get_next_move_id()
+            m.GameId = g.GameId
+
+            time_str = re.search(r"\[%clk (\d+:\d+:\d+)\]", md).group(1)
+            time_sec = self.__parse_time(time_str)
+            # TODO - Finish populating "m" instance attributes
+
+
+    def __parse_time(self, time_str: str) -> int:
+        """
+        Parses the time string in the format HH:MM:SS and returns the
+        total seconds.
+
+        Args:
+            time_str (str): Time string in the format HH:MM:SS.
+        
+        Returns:
+            Integer representing the number of total seconds.
+        """
+        hours, minutes, seconds = map(int, time_str.split(":"))
+        return hours * 3600 + minutes * 60 + seconds
+            
     
 
     def __create_game_record(self, g: Game):
@@ -135,3 +170,18 @@ class PgnParser:
             m (Move): Move instance with filled attributes.
         """
         pass
+
+
+    def __set_next_move_id(self):
+        max_id = self.db.execute("""
+            SELECT MAX(MoveId)
+              FROM Move;
+        """)
+
+        self.nextMoveId += 1
+    
+
+    def __get_next_move_id(self):
+        self.nextMoveId += 1
+        
+        return self.nextMoveId - 1
