@@ -29,7 +29,7 @@ def main(db_file_path):
     
     plt.xlabel("Frequency")
     plt.ylabel("Moves")
-    plt.title("Frequency of Moves in Chess")
+    plt.title("Frequency of First Movess")
     
     plt.gca().invert_yaxis()
     plt.tight_layout()
