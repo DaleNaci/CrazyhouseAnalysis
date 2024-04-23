@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from src.backend.database import Database
 
 
-def main(db_file_path):
+def main(db_file_path, move, round_limit):
     db = Database(db_file_path)
     db.connect()
 
